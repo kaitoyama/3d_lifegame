@@ -6,4 +6,4 @@
 
 std::vector<int> flatten(const std::vector<std::vector<std::vector<int>>>& input);
 
-#endif // LOOP_COUNTER_H
+#endif // FLATTEN_H

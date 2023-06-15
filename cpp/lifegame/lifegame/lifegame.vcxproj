@@ -128,14 +128,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="conv3D.cpp" />
+    <ClCompile Include="convertTo3DVector.cpp" />
     <ClCompile Include="flatten.cpp" />
+    <ClCompile Include="generateFlatVector.cpp" />
     <ClCompile Include="generation.cpp" />
     <ClCompile Include="loop_counter.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="conv3D.h" />
+    <ClInclude Include="convertTo3DVector.h" />
     <ClInclude Include="flatten.h" />
+    <ClInclude Include="generateFlatVector.h" />
     <ClInclude Include="generation.h" />
     <ClInclude Include="loop_counter.h" />
   </ItemGroup>
