@@ -133,7 +133,6 @@
   <ItemGroup>
     <ClCompile Include="bightToString.cpp" />
     <ClCompile Include="bightToString.h" />
-    <ClCompile Include="bigint.cpp" />
     <ClCompile Include="binaryToDecimal.cpp" />
     <ClCompile Include="conv3D.cpp" />
     <ClCompile Include="convertTo3DVector.cpp" />
@@ -146,8 +145,6 @@
     <ClCompile Include="stringToBight.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bigint.hpp" />
-    <ClInclude Include="bigInt.h" />
     <ClInclude Include="binaryToDecimal.h" />
     <ClInclude Include="conv3D.h" />
     <ClInclude Include="convertTo3DVector.h" />
