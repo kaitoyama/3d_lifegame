@@ -3,7 +3,8 @@
 #define GENERATEFLOATVALUE_H
 
 #include <vector>
+#include <random>
 
-std::vector<int> generateFlatVector(int n,int x);
+std::vector<int> generateFlatVector(std::mt19937 gen,int x);
 
 #endif // GENERATEFLOATVALUE_H

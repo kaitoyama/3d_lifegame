@@ -104,10 +104,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Boost\include\boost-1_82;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Boost\lib\cmake;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -118,30 +120,43 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Boost\include\boost-1_82;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Boost\lib\cmake;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bightToString.cpp" />
+    <ClCompile Include="bightToString.h" />
+    <ClCompile Include="bigint.cpp" />
+    <ClCompile Include="binaryToDecimal.cpp" />
     <ClCompile Include="conv3D.cpp" />
     <ClCompile Include="convertTo3DVector.cpp" />
+    <ClCompile Include="decimalToBinary.cpp" />
     <ClCompile Include="flatten.cpp" />
     <ClCompile Include="generateFlatVector.cpp" />
     <ClCompile Include="generation.cpp" />
     <ClCompile Include="loop_counter.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="stringToBight.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bigint.hpp" />
+    <ClInclude Include="bigInt.h" />
+    <ClInclude Include="binaryToDecimal.h" />
     <ClInclude Include="conv3D.h" />
     <ClInclude Include="convertTo3DVector.h" />
+    <ClInclude Include="decimalToBinary.h" />
     <ClInclude Include="flatten.h" />
     <ClInclude Include="generateFlatVector.h" />
     <ClInclude Include="generation.h" />
     <ClInclude Include="loop_counter.h" />
+    <ClInclude Include="stringToBight.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

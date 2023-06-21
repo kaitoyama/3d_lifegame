@@ -5,9 +5,13 @@
 #include <bitset>
 #include "flatten.h"
 #include "conv3D.h"
+#include "bightToString.h"
+#include "stringToBight.h"
+#include "decimalToBinary.h"
+#include "bigInt.h"
 
 
-std::pair<int, std::vector<int>> generation(const std::vector<std::vector<std::vector<int>>>& first, const std::vector<int>& rule, const std::vector<std::vector<std::vector<int>>>& filter, int count)
+std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vector<std::vector<std::vector<int>>>& first, const std::vector<int>& rule, const std::vector<std::vector<std::vector<int>>>& filter, int count)
 {
     int under = rule[0];
     int birth = rule[1];
@@ -16,13 +20,18 @@ std::pair<int, std::vector<int>> generation(const std::vector<std::vector<std::v
     int end = 0;
     std::vector<std::vector<std::vector<int>>> after = first;
 
-    std::vector<int> proc;
+    std::vector<std::vector<std::string>> proc;
 
-    for (int _ = 0; _ < count; ++_) {
+    std::vector<int> after_l = flatten(after);
+
+    std::vector<std::string> after_string = binaryToDecimal(after_l);   
+
+    proc.push_back(after_string);
+
+    for (int k = 0; k < count; ++k) {
         std::vector<std::vector<std::vector<int>>> before = after;
         std::vector<std::vector<std::vector<int>>> result = conv3D(before, filter);
 
-        // Update the result tensor directly
         for (size_t i = 0; i < after.size(); ++i) {
             for (size_t j = 0; j < after[i].size(); ++j) {
                 for (size_t k = 0; k < after[i][j].size(); ++k) {
@@ -38,17 +47,11 @@ std::pair<int, std::vector<int>> generation(const std::vector<std::vector<std::v
                 }
             }
         }
+        
+        after_l = flatten(after);
+        after_string = binaryToDecimal(after_l);
 
-        std::vector<int> after_l = flatten(after);
-        std::vector<int> after_l_binary(after_l.size());
-        std::transform(after_l.begin(), after_l.end(), after_l_binary.begin(), [](int x) { return x == 1 ? 1 : 0; });
-
-        int after_int = 0;
-        for (int bit : after_l_binary) {
-            after_int = (after_int << 1) | bit;
-        }
-
-        proc.push_back(after_int);
+        proc.push_back(after_string);
 
         if (std::accumulate(after_l.begin(), after_l.end(), 0) == 0) {
             break;

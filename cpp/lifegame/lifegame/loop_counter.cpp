@@ -1,12 +1,16 @@
 #include "loop_counter.h"
+#include <string>
 
-std::vector<int> flatten(const std::vector<std::vector<std::vector<int>>>& input)
+int loop_counter(const std::vector<std::vector <std::string>>& input)
 {
-    std::vector<int> flattened;
-    for (const auto& dim1 : input) {
-        for (const auto& dim2 : dim1) {
-            flattened.insert(flattened.end(), dim2.begin(), dim2.end());
+    std::vector<std::vector <std::string>> loop = { input.back() };
+    for (int i = 0; i < input.size()-1; ++i) {
+        if (input[input.size() - 1 - (i + 1)] == loop[0]) {
+            break;
+        }
+        else {
+            loop.push_back(input[input.size() - 1 - (i + 1)]);
         }
     }
-    return flattened;
+    return loop.size();
 }

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-std::vector<int> flatten3D(const std::vector<std::vector<std::vector<int>>>& input)
+std::vector<int> flatten(const std::vector<std::vector<std::vector<int>>>& input)
 {
     std::vector<int> result;
     for (const auto& layer : input) {
