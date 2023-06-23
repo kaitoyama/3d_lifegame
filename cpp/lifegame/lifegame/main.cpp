@@ -18,15 +18,15 @@
 
 
 // 問題のサイズ
-int n = 4;
+int n = 10;
 
 // 焼きなまし法のパラメータ
 const int maxIterations = 100;      // 最大探索回数
-const float initialTemperature = 5000; // 初期温度
+const float initialTemperature = 100000; // 初期温度
 const float coolingRate = 0.95f;       // 冷却率      
 const float epsilon = 0.1f;            // 反転率（ε）
 
-int count = 100;
+int count = 500;
 std::vector<int> rule = { 0, 4, 6 };
 
 std::vector<std::vector<std::vector<int>>> filter = {
@@ -84,15 +84,24 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
     }
 
     int m = 0;
+    int n = 0;
 
 
     if (l==1)
     {
         m = 500;
     }
-
+    //loop
     cost = -2 * static_cast<double>(result.first)+ static_cast<double>(sum) * 0.3 + pow(m, 3) - pow(l, 3);
     
+    //メトセラ
+    if (result.first==count)
+    {
+        n = 500;
+    }
+
+    // cost = pow(n, 3) - pow(static_cast<double>(result.first), 2) + pow(static_cast<double>(sum), 2);
+
     return cost;
 }
 
@@ -167,13 +176,14 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                     bestEnergy = newEnergy;
                 }
             }
-            if (time%1000==0)
+            if (time%100==0)
             {
-                std::cout << "-----------------------------" << std::endl;
-                std::cout << "cost" << energy(bestSolution);
-                std::pair<int, std::vector<std::vector<std::string>>> best_result = generation(bestSolution, rule, filter, 100);
-                std::cout << best_result.second.size() << std::endl;
-                print2DVector(best_result.second);
+                //std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
+                std::pair<int, std::vector<std::vector<std::string>>> best_result = generation(bestSolution, rule, filter, count);
+                //std::cout << "cost" << energy(bestSolution) <<"loop"<< loop_counter(best_result.second)<< std::endl;
+                std::cout << "cost" << energy(bestSolution) << "end:" << best_result.first << std::endl;
+                //std::cout << best_result.second.size() << std::endl;
+                //print2DVector(best_result.second);
 
             }
         }
@@ -181,34 +191,35 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
         // 温度の冷却
         temperature *= coolingRate;
     }
-    std::cout << bestEnergy << std::endl;
-    for (int i = 0; i < generation(bestSolution, rule, filter, count).second.size(); i++) {
-        for (int j = 0; j < generation(bestSolution, rule, filter, count).second.at(i).size();j++) {
-            auto l = generation(bestSolution, rule, filter, count).second.at(i).at(j);
-            std::cout << j << "";
-
-        }
-        std::cout<<std::endl;
-    }
     std::cout << std::endl;
     std::cout <<"loop:" << loop_counter(generation(bestSolution, rule, filter, count).second) << std::endl;
+    std::pair<int, std::vector<std::vector<std::string>>> best_result = generation(bestSolution, rule, filter, 100);
+    std::cout << best_result.second.size() << std::endl;
+    print2DVector(best_result.second);
     return bestSolution;
 }
 
 int main() {
+    std::chrono::system_clock::time_point start, end;
+
+    start = std::chrono::system_clock::now();
     // 焼きなまし法による探索
     std::vector<std::vector<std::vector<int>>> solution = simulatedAnnealing();
 
     // 結果の表示
     printVector(solution);
 
+    end = std::chrono::system_clock::now();
+
+    double time = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0);
+    printf("time %lf[ms]\n", time);
     return 0;
 }
 
 
 int test()
 {
-    n=2;
+    n=4;
 
     std::mt19937 mt{ std::random_device{}() };
 

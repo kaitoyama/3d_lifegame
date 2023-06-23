@@ -8,7 +8,6 @@
 #include "bightToString.h"
 #include "stringToBight.h"
 #include "decimalToBinary.h"
-#include "bigInt.h"
 
 
 std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vector<std::vector<std::vector<int>>>& first, const std::vector<int>& rule, const std::vector<std::vector<std::vector<int>>>& filter, int count)
@@ -27,7 +26,6 @@ std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vect
     std::vector<std::string> after_string = binaryToDecimal(after_l);   
 
     proc.push_back(after_string);
-
     for (int k = 0; k < count; ++k) {
         std::vector<std::vector<std::vector<int>>> before = after;
         std::vector<std::vector<std::vector<int>>> result = conv3D(before, filter);

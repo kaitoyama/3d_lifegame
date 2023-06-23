@@ -27,7 +27,9 @@ std::vector<std::string> binaryToDecimal(const std::vector<int>& binary) {
     while (decimalValue > 0) {
         Bint x = (decimalValue % 10);
         decimal.push_back(x.str());
-        decimalValue /= 10;
+        std::string decimalValueString = decimalValue.str();
+        decimalValueString = decimalValueString.erase(decimalValueString.size() - 1);
+        decimalValue = mp::cpp_int(decimalValueString);
     }
 
     std::reverse(decimal.begin(), decimal.end());
