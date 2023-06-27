@@ -45,19 +45,24 @@ std::vector<std::vector<std::vector<int>>> conv3D(const std::vector<std::vector<
     std::vector<std::vector<std::vector<int>>> output(outputDepth, std::vector<std::vector<int>>(outputHeight, std::vector<int>(outputWidth, 0)));
 
     // 畳み込み演算
-    for (int d = 0; d < outputDepth; ++d) {
-        for (int h = 0; h < outputHeight; ++h) {
-            for (int w = 0; w < outputWidth; ++w) {
-                for (int fd = 0; fd < filterDepth; ++fd) {
-                    for (int fh = 0; fh < filterHeight; ++fh) {
-                        for (int fw = 0; fw < filterWidth; ++fw) {
-                            output[d][h][w] += paddedInput[d + fd][h + fh][w + fw] * filter[fd][fh][fw];
+    for (int fd = 0; fd < filterDepth; ++fd) {
+        for (int fh = 0; fh < filterHeight; ++fh) {
+            for (int fw = 0; fw < filterWidth; ++fw) {
+                int currentFilterValue = filter[fd][fh][fw];
+                for (int d = 0; d < outputDepth; ++d) {
+                    for (int h = 0; h < outputHeight; ++h) {
+                        for (int w = 0; w < outputWidth; ++w) {
+                            int inputValue = paddedInput[d + fd][h + fh][w + fw];
+                            output[d][h][w] += inputValue * currentFilterValue;
                         }
                     }
                 }
             }
         }
     }
+
+
+
 
     return output;
 }

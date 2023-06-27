@@ -1,13 +1,10 @@
-#include <iostream>
 #include <vector>
-#include <algorithm>
-#include <numeric>
-#include <bitset>
 #include "flatten.h"
 #include "conv3D.h"
 #include "bightToString.h"
 #include "stringToBight.h"
 #include "decimalToBinary.h"
+#include <numeric>
 
 
 std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vector<std::vector<std::vector<int>>>& first, const std::vector<int>& rule, const std::vector<std::vector<std::vector<int>>>& filter, int count)
@@ -19,6 +16,8 @@ std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vect
     int end = 0;
     std::vector<std::vector<std::vector<int>>> after = first;
 
+    int n = after.size();
+
     std::vector<std::vector<std::string>> proc;
 
     std::vector<int> after_l = flatten(after);
@@ -26,30 +25,28 @@ std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vect
     std::vector<std::string> after_string = binaryToDecimal(after_l);   
 
     proc.push_back(after_string);
-    for (int k = 0; k < count; ++k) {
+    for (int l = 0; l < count; ++l) {
         std::vector<std::vector<std::vector<int>>> before = after;
         std::vector<std::vector<std::vector<int>>> result = conv3D(before, filter);
 
-        for (size_t i = 0; i < after.size(); ++i) {
-            for (size_t j = 0; j < after[i].size(); ++j) {
-                for (size_t k = 0; k < after[i][j].size(); ++k) {
-                    if ((result[i][j][k] >= under) && (result[i][j][k] <= over) && (before[i][j][k] == 1)) {
+        for (size_t i = 0; i < n; ++i) {
+            for (size_t j = 0; j < n; ++j) {
+                for (size_t k = 0; k < n; ++k) {
+                    if ((result[i][j][k] >= under && result[i][j][k] <= over && before[i][j][k] == 1) || (result[i][j][k] == birth && before[i][j][k] == 0)) {
                         after[i][j][k] = 1;
                     }
-                    if ((result[i][j][k] == birth) && (before[i][j][k] == 0)) {
-                        after[i][j][k] = 1;
-                    }
-                    if ((result[i][j][k] < under) || (result[i][j][k] > over)) {
+                    else if (result[i][j][k] < under || result[i][j][k] > over) {
                         after[i][j][k] = 0;
                     }
                 }
             }
         }
         
-        after_l = flatten(after);
-        after_string = binaryToDecimal(after_l);
+        std::vector<int> after_l = flatten(after);
+        std::vector<std::string> after_string = binaryToDecimal(after_l);
 
         proc.push_back(after_string);
+
 
         if (std::accumulate(after_l.begin(), after_l.end(), 0) == 0) {
             break;

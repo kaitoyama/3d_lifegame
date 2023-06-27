@@ -18,16 +18,18 @@
 
 
 // 問題のサイズ
-int n = 10;
+int n = 4;
+
+int density = 3;
 
 // 焼きなまし法のパラメータ
 const int maxIterations = 100;      // 最大探索回数
-const float initialTemperature = 100000; // 初期温度
-const float coolingRate = 0.95f;       // 冷却率      
+const float initialTemperature = 100000.0f; // 初期温度
+const float coolingRate = 0.97f;       // 冷却率      
 const float epsilon = 0.1f;            // 反転率（ε）
 
 int count = 500;
-std::vector<int> rule = { 0, 4, 6 };
+std::vector<int> rule = { 4, 6, 8 };
 
 std::vector<std::vector<std::vector<int>>> filter = {
     {{1, 1, 1},
@@ -100,7 +102,7 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
         n = 500;
     }
 
-    // cost = pow(n, 3) - pow(static_cast<double>(result.first), 2) + pow(static_cast<double>(sum), 2);
+    cost = pow(n, 3) - pow(static_cast<double>(result.first), 3) + pow(static_cast<double>(sum), 2);
 
     return cost;
 }
@@ -141,11 +143,17 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
     std::uniform_real_distribution<> dis(0.0, 1.0);
 
     std::uniform_int_distribution<int> dist(0, 1);
-    std::vector<int> input_float = generateFlatVector(gen,n);
+    std::vector<int> input_float = generateFlatVector(gen,n,density);
     // 入力データの作成
     std::vector<std::vector<std::vector<int>>> currentSolution = convertTo3DVector(input_float, n);
 
     printVector(currentSolution);
+
+    int estimate_counts=0;
+    while (initialTemperature * std::pow(coolingRate, estimate_counts)>0.1)
+    {
+        estimate_counts += 1;
+    }
 
     // 現在の解のエネルギー
     double currentEnergy = energy(currentSolution);
@@ -156,6 +164,9 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
     // 最良解とそのエネルギー
     std::vector<std::vector<std::vector<int>>> bestSolution = currentSolution;
     double bestEnergy = currentEnergy;
+    std::chrono::system_clock::time_point estimateStartPoint;
+    std::chrono::system_clock::time_point estimatePoint;
+    estimateStartPoint = std::chrono::system_clock::now();
 
     // 焼きなまし法のメインループ
     float temperature = initialTemperature;
@@ -176,6 +187,7 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                     bestEnergy = newEnergy;
                 }
             }
+
             if (time%100==0)
             {
                 //std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
@@ -185,6 +197,12 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 //std::cout << best_result.second.size() << std::endl;
                 //print2DVector(best_result.second);
 
+            }
+            if (time % 1000 == 0)
+            {
+                estimatePoint = std::chrono::system_clock::now();
+                double estimateTime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(estimatePoint - estimateStartPoint).count() / (std::pow(1000.0, 2)));
+                std::cout << (((estimate_counts * maxIterations) - time) / time) * estimateTime << std::endl;
             }
         }
 
