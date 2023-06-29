@@ -11,7 +11,7 @@ using Bint = mp::cpp_int;
 // ‰¼”•”‚ª10i”‚Å1024Œ…‚Ì•‚“®¬”“_”Œ^(TLE‚µ‚½‚ç¬‚³‚­‚·‚é)
 using Real = mp::number<mp::cpp_dec_float<1024>>;
 
-std::vector<std::string> binaryToDecimal(const std::vector<int>& binary) {
+std::string binaryToDecimal(const std::vector<int>& binary) {
     std::vector<std::string> decimal;
     Bint power = 1;
     Bint decimalValue = 0;
@@ -23,8 +23,5 @@ std::vector<std::string> binaryToDecimal(const std::vector<int>& binary) {
             mp::bit_set(y, i);
         }
     }
-    for (char digit : y.str()) {
-        decimal.push_back(std::string(1, digit));
-    }
-    return decimal;
+    return y.str();
 }

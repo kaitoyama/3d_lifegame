@@ -24,8 +24,8 @@ int n = 10;
 int density = 5;
 
 // 焼きなまし法のパラメータ
-const int maxIterations = 1;      // 最大探索回数
-const float initialTemperature = 10.0f; // 初期温度
+const int maxIterations = 100;      // 最大探索回数
+const float initialTemperature = 10000.0f; // 初期温度
 const float coolingRate = 0.97f;       // 冷却率      
 const float epsilon = 0.1f;            // 反転率（ε）
 
@@ -74,7 +74,7 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
 
     double cost;
 
-    std::pair<int, std::vector<std::vector<std::string>>> result = generation(cube, rule, filter, count);
+    std::pair<int, std::vector<std::string>> result = generation(cube, rule, filter, count);
     int l = loop_counter(result.second);
     int sum = 0;
 
@@ -192,7 +192,7 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
             if (time%100==0)
             {
                 //std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
-                std::pair<int, std::vector<std::vector<std::string>>> best_result = generation(bestSolution, rule, filter, count);
+                std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, count);
                 //std::cout << "cost" << energy(bestSolution) <<"loop"<< loop_counter(best_result.second)<< std::endl;
                 std::cout << "cost" << energy(bestSolution) << "end:" << best_result.first << std::endl;
                 //std::cout << best_result.second.size() << std::endl;
@@ -213,9 +213,12 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
     }
     std::cout << std::endl;
     std::cout <<"loop:" << loop_counter(generation(bestSolution, rule, filter, count).second) << std::endl;
-    std::pair<int, std::vector<std::vector<std::string>>> best_result = generation(bestSolution, rule, filter, 100);
+    std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, 100);
     std::cout << best_result.second.size() << std::endl;
-    print2DVector(best_result.second);
+    for (int i = 0; i < best_result.second.size(); i++)
+    {
+        std::cout << best_result.second[i] << std::endl;
+    }
     return bestSolution;
 }
 
@@ -317,7 +320,7 @@ int test()
 
     start = std::chrono::system_clock::now();
     // ゲームの実行
-    std::pair<int, std::vector<std::vector <std::string>>> result = generation(input_vector, rule, filter, count);
+    std::pair<int, std::vector<std::string>> result = generation(input_vector, rule, filter, count);
 
     end = std::chrono::system_clock::now();
 
@@ -328,7 +331,10 @@ int test()
     // 結果の表示
     std::cout << "End: " << result.first << std::endl;
     std::cout << "Proc: ";
-    print2DVector(result.second);
+    for (int i = 0; i < result.second.size(); i++)
+    {
+        std::cout << result.second[i] << std::endl;
+    }
     std::cout << std::endl;
 
     printVector(conv3D(input_vector, filter));

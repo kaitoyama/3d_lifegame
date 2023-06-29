@@ -4,10 +4,11 @@
 #include "bightToString.h"
 #include "stringToBight.h"
 #include "decimalToBinary.h"
+#include "binaryToDecimal.h"
 #include <numeric>
 
 
-std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vector<std::vector<std::vector<int>>>& first, const std::vector<int>& rule, const std::vector<std::vector<std::vector<int>>>& filter, int count)
+std::pair<int, std::vector<std::string>> generation(const std::vector<std::vector<std::vector<int>>>& first, const std::vector<int>& rule, const std::vector<std::vector<std::vector<int>>>& filter, int count)
 {
     int under = rule[0];
     int birth = rule[1];
@@ -18,11 +19,11 @@ std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vect
 
     int n = after.size();
 
-    std::vector<std::vector<std::string>> proc;
+    std::vector<std::string> proc;
 
     std::vector<int> after_l = flatten(after);
 
-    std::vector<std::string> after_string = binaryToDecimal(after_l);   
+    std::string after_string = binaryToDecimal(after_l);   
 
     proc.push_back(after_string);
     for (int l = 0; l < count; ++l) {
@@ -43,7 +44,7 @@ std::pair<int, std::vector<std::vector<std::string>>> generation(const std::vect
         }
         
         std::vector<int> after_l = flatten(after);
-        std::vector<std::string> after_string = binaryToDecimal(after_l);
+        std::string after_string = binaryToDecimal(after_l);
 
         proc.push_back(after_string);
 

@@ -61,8 +61,8 @@ std::vector<std::vector<std::vector<int>>> conv3D(const std::vector<std::vector<
         }
     }
 
-
-
-
+    
+    
+    
     return output;
 }
