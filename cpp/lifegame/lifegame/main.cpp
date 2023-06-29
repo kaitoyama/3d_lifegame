@@ -18,13 +18,14 @@
 
 
 // 問題のサイズ
-int n = 4;
+int n = 10;
 
-int density = 3;
+//初期状態の濃度(1/2^density)
+int density = 5;
 
 // 焼きなまし法のパラメータ
-const int maxIterations = 100;      // 最大探索回数
-const float initialTemperature = 100000.0f; // 初期温度
+const int maxIterations = 1;      // 最大探索回数
+const float initialTemperature = 10.0f; // 初期温度
 const float coolingRate = 0.97f;       // 冷却率      
 const float epsilon = 0.1f;            // 反転率（ε）
 
@@ -102,7 +103,7 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
         n = 500;
     }
 
-    cost = pow(n, 3) - pow(static_cast<double>(result.first), 3) + pow(static_cast<double>(sum), 2);
+    cost = pow(n, 3) - pow(static_cast<double>(result.first), 2)/pow(static_cast<double>(sum), 2);
 
     return cost;
 }
@@ -202,6 +203,7 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
             {
                 estimatePoint = std::chrono::system_clock::now();
                 double estimateTime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(estimatePoint - estimateStartPoint).count() / (std::pow(1000.0, 2)));
+                std::cout << estimateTime << std::endl;
                 std::cout << (((estimate_counts * maxIterations) - time) / time) * estimateTime << std::endl;
             }
         }

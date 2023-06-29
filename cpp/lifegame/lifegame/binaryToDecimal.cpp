@@ -15,24 +15,16 @@ std::vector<std::string> binaryToDecimal(const std::vector<int>& binary) {
     std::vector<std::string> decimal;
     Bint power = 1;
     Bint decimalValue = 0;
-    int binarySize = binary.size();
-
-    for (int i = binarySize - 1; i >= 0; i--) {
-        if (binary[binarySize - 1 - i] == 1) {
-            decimalValue += power;
+    Bint y = 0;
+    for (int i = 0; i < binary.size(); i++)
+    {
+        if (binary[i] == 1)
+        {
+            mp::bit_set(y, i);
         }
-
-        power *= 2;
     }
-
-    while (decimalValue > 0) {
-        Bint remainder = decimalValue % 10;
-        decimal.push_back(remainder.str());
-        decimalValue /= 10;
+    for (char digit : y.str()) {
+        decimal.push_back(std::string(1, digit));
     }
-
-
-    std::reverse(decimal.begin(), decimal.end());
-
     return decimal;
 }
