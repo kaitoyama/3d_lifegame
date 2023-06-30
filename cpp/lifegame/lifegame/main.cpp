@@ -18,7 +18,7 @@
 
 
 // 問題のサイズ
-int n = 10;
+int n = 4;
 
 //初期状態の濃度(1/2^density)
 int density = 5;
@@ -26,7 +26,7 @@ int density = 5;
 // 焼きなまし法のパラメータ
 const int maxIterations = 100;      // 最大探索回数
 const float initialTemperature = 10000.0f; // 初期温度
-const float coolingRate = 0.97f;       // 冷却率      
+const float coolingRate = 0.95f;       // 冷却率      
 const float epsilon = 0.1f;            // 反転率（ε）
 
 int count = 500;
@@ -199,7 +199,7 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 //print2DVector(best_result.second);
 
             }
-            if (time % 1000 == 0)
+            if (time==1000)
             {
                 estimatePoint = std::chrono::system_clock::now();
                 double estimateTime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(estimatePoint - estimateStartPoint).count() / (std::pow(1000.0, 2)));
@@ -236,6 +236,40 @@ int main() {
 
     double time = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0);
     printf("time %lf[ms]\n", time);
+    return 0;
+}
+
+
+int tes() {
+    // 入力データの例
+    std::vector<std::vector<std::vector<int>>> input = {
+        {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},
+        {{0, 1, 0}, {0, 1, 0}, {0, 1, 0}},
+        {{0, 0, 1}, {0, 0, 1}, {0, 0, 1}}
+    };
+
+    // カーネル（フィルター）の例
+    std::vector<std::vector<std::vector<int>>> filter = {
+        {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}},
+        {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}},
+        {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}}
+    };
+
+    // 3D畳み込みを実行
+    std::vector<std::vector<std::vector<int>>> output = conv3D(input, filter);
+
+    // 結果の出力
+    std::cout << "Output:" << std::endl;
+    for (const auto& slice : output) {
+        for (const auto& row : slice) {
+            for (int value : row) {
+                std::cout << value << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
     return 0;
 }
 
