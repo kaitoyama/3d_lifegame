@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <thread>
 #include <numeric>
 #include <vector>
 #include <cmath>
@@ -18,19 +19,19 @@
 
 
 // 問題のサイズ
-int n = 4;
+int n = 10;
 
 //初期状態の濃度(1/2^density)
-int density = 5;
+int density = 3;
 
 // 焼きなまし法のパラメータ
-const int maxIterations = 100;      // 最大探索回数
+const int maxIterations = 500;      // 最大探索回数
 const float initialTemperature = 10000.0f; // 初期温度
 const float coolingRate = 0.95f;       // 冷却率      
-const float epsilon = 0.1f;            // 反転率（ε）
+const float epsilon = 0.12f;            // 反転率（ε）
 
-int count = 500;
-std::vector<int> rule = { 4, 6, 8 };
+int count = 100;
+std::vector<int> rule = { 3, 5, 10 };
 
 std::vector<std::vector<std::vector<int>>> filter = {
     {{1, 1, 1},
@@ -103,7 +104,7 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
         n = 500;
     }
 
-    cost = pow(n, 3) - pow(static_cast<double>(result.first), 2)/pow(static_cast<double>(sum), 2);
+    cost = pow(n, 3) - pow(static_cast<double>(result.first), 2) + static_cast<double>(result.first)*pow(static_cast<double>(sum), 2);
 
     return cost;
 }
@@ -144,9 +145,9 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
     std::uniform_real_distribution<> dis(0.0, 1.0);
 
     std::uniform_int_distribution<int> dist(0, 1);
-    std::vector<int> input_float = generateFlatVector(gen,n,density);
+    std::vector<int> input_flat = generateFlatVector(gen,n,density);
     // 入力データの作成
-    std::vector<std::vector<std::vector<int>>> currentSolution = convertTo3DVector(input_float, n);
+    std::vector<std::vector<std::vector<int>>> currentSolution = convertTo3DVector(input_flat, n);
 
     printVector(currentSolution);
 
@@ -189,7 +190,7 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 }
             }
 
-            if (time%100==0)
+            if (time%maxIterations==0)
             {
                 //std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
                 std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, count);
@@ -205,6 +206,25 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 double estimateTime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(estimatePoint - estimateStartPoint).count() / (std::pow(1000.0, 2)));
                 std::cout << estimateTime << std::endl;
                 std::cout << (((estimate_counts * maxIterations) - time) / time) * estimateTime << std::endl;
+            }
+            if (time == maxIterations * 5)
+            {
+                if (bestEnergy >= pow(100, 2)||generation(bestSolution,rule,filter,count).first<10)
+                {
+                    std::mt19937 gen(rd());
+                    std::uniform_int_distribution<> dist_l(0, 15);
+                    rule[0] = dist_l(gen);
+                    std::uniform_int_distribution<> dist_b(rule[0], 16);
+                    rule[1] = dist_b(gen);
+                    std::uniform_int_distribution<> dist_o(rule[1], 17);
+                    rule[2] = dist_o(gen);
+                    std::cout << rule[0] << "," << rule[1] << "," << rule[2] << std::endl;
+                    iteration = 0;
+                    std::cout << iteration << std::endl;
+                    time = 0;
+                    temperature = initialTemperature;
+                    bestEnergy = pow(100, 3);
+                }
             }
         }
 
