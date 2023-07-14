@@ -12,5 +12,10 @@ int loop_counter(const std::vector<std::string>& input)
             loop.push_back(input[input.size() - 1 - (i + 1)]);
         }
     }
+
+    if (input.size() == loop.size()) {
+        return 0;
+    }
+
     return loop.size();
 }

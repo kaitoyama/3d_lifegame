@@ -19,19 +19,19 @@
 
 
 // 問題のサイズ
-int n = 10;
+int n = 7;
 
 //初期状態の濃度(1/2^density)
-int density = 3;
+int density = 4;
 
 // 焼きなまし法のパラメータ
 const int maxIterations = 500;      // 最大探索回数
 const float initialTemperature = 10000.0f; // 初期温度
 const float coolingRate = 0.95f;       // 冷却率      
-const float epsilon = 0.12f;            // 反転率（ε）
+const float epsilon = 0.1f;            // 反転率（ε）
 
-int count = 100;
-std::vector<int> rule = { 3, 5, 10 };
+int count = 500;
+std::vector<int> rule = { 5, 5, 10 };
 
 std::vector<std::vector<std::vector<int>>> filter = {
     {{1, 1, 1},
@@ -70,6 +70,13 @@ void print2DVector(const std::vector<std::vector<std::string>>& cube) {
     }
 }
 
+void print1DVector(const std::vector<std::string>& cube) {
+    for (int i = 0; i < cube.size(); ++i) {
+        auto c = cube[i];
+        std::cout << c << std::endl;
+    }
+}
+
 // コスト計算関数 (エネルギー)
 double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
 
@@ -89,6 +96,7 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
 
     int m = 0;
     int n = 0;
+    int c = 0;
 
 
     if (l==1)
@@ -99,12 +107,16 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
     cost = -2 * static_cast<double>(result.first)+ static_cast<double>(sum) * 0.3 + pow(m, 3) - pow(l, 3);
     
     //メトセラ
-    if (result.first==count)
+    if (loop_counter(result.second) > 0)
     {
-        n = 500;
+        n = 10;
+    }
+    else
+    {
+        c = 1;
     }
 
-    cost = pow(n, 3) - pow(static_cast<double>(result.first), 2) + static_cast<double>(result.first)*pow(static_cast<double>(sum), 2);
+    cost = pow(n, 7) - c*pow(static_cast<double>(result.first), 3) + pow(static_cast<double>(sum), 2);
 
     return cost;
 }
@@ -192,12 +204,12 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
 
             if (time%maxIterations==0)
             {
-                //std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
+                std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
                 std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, count);
-                //std::cout << "cost" << energy(bestSolution) <<"loop"<< loop_counter(best_result.second)<< std::endl;
+                std::cout << "cost" << energy(bestSolution) <<"loop"<< loop_counter(best_result.second)<< std::endl;
                 std::cout << "cost" << energy(bestSolution) << "end:" << best_result.first << std::endl;
-                //std::cout << best_result.second.size() << std::endl;
-                //print2DVector(best_result.second);
+                std::cout << best_result.second.size() << std::endl;
+                //print1DVector(best_result.second);
 
             }
             if (time==1000)
@@ -207,9 +219,9 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 std::cout << estimateTime << std::endl;
                 std::cout << (((estimate_counts * maxIterations) - time) / time) * estimateTime << std::endl;
             }
-            if (time == maxIterations * 5)
+            if (time == maxIterations * 30)
             {
-                if (bestEnergy >= pow(100, 2)||generation(bestSolution,rule,filter,count).first<10)
+                if (bestEnergy >= pow(10, 5)||generation(bestSolution,rule,filter,count).first<10)
                 {
                     std::mt19937 gen(rd());
                     std::uniform_int_distribution<> dist_l(0, 15);
@@ -233,8 +245,17 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
     }
     std::cout << std::endl;
     std::cout <<"loop:" << loop_counter(generation(bestSolution, rule, filter, count).second) << std::endl;
-    std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, 100);
+    std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, count);
     std::cout << best_result.second.size() << std::endl;
+    int sum = 0;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            for (int k = 0; k < n; ++k) {
+                sum += bestSolution[i][j][k];
+            }
+        }
+    }
     for (int i = 0; i < best_result.second.size(); i++)
     {
         std::cout << best_result.second[i] << std::endl;
