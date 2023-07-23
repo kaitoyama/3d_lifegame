@@ -8,6 +8,7 @@
 #include "decimalToBinary.h"
 #include "stringToBight.h"
 #include "conv3D.h"
+#include "rotateAndFlipSearch.h"
 #include <algorithm>
 #include <random>
 #include <chrono>
@@ -15,23 +16,24 @@
 #include <numeric>
 #include <vector>
 #include <cmath>
+#include <map>
 #include <string>
 
 
 // 問題のサイズ
-int n = 7;
+int n =6;
 
 //初期状態の濃度(1/2^density)
-int density = 4;
+int density = 2;
 
 // 焼きなまし法のパラメータ
 const int maxIterations = 500;      // 最大探索回数
 const float initialTemperature = 10000.0f; // 初期温度
-const float coolingRate = 0.95f;       // 冷却率      
+const float coolingRate = 0.97f;       // 冷却率      
 const float epsilon = 0.1f;            // 反転率（ε）
 
 int count = 500;
-std::vector<int> rule = { 5, 5, 10 };
+std::vector<int> rule = { 2, 5, 10 };
 
 std::vector<std::vector<std::vector<int>>> filter = {
     {{1, 1, 1},
@@ -47,11 +49,26 @@ std::vector<std::vector<std::vector<int>>> filter = {
     {1, 1, 1}}
 };
 
+std::map<std::string, int> countOccurrences(const std::vector<std::string>& inputVector) {
+    std::map<std::string, int> occurrences;
+
+    for (const auto& element : inputVector) {
+        occurrences[element]++;
+    }
+
+    return occurrences;
+}
+
+// 出現回数順にソートするための比較関数
+bool sortByOccurrences(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+    return a.second > b.second;
+}
+
 // 三次元vectorの表示
 void printVector(const std::vector<std::vector<std::vector<int>>>& cube) {
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            for (int k = 0; k < n; ++k) {
+    for (int i = 0; i < cube.size(); ++i) {
+        for (int j = 0; j < cube[0].size(); ++j) {
+            for (int k = 0; k < cube[0][0].size(); ++k) {
                 std::cout << cube[i][j][k] << " ";
             }
             std::cout << std::endl;
@@ -77,6 +94,28 @@ void print1DVector(const std::vector<std::string>& cube) {
     }
 }
 
+
+std::vector<std::string>patternChecker(const std::vector<std::string>result_history) {
+    std::vector<std::string> history;
+
+    for (int i = 0; i < result_history.size(); i++)
+    {
+        std::vector<int> f = decimalToBinary(result_history[i], n * n * n);
+        std::vector<std::vector<std::vector<int>>>h = convertTo3DVector(f, n);
+        std::vector<std::vector<std::vector<std::vector<int>>>>h_p = collectThreeDimensionalVectors(h);
+        for (int j = 0; j < h_p.size(); j++) {
+            h_p[j] = removeOuterFaces(h_p[j]);
+            std::string nomalized = normalize(h_p[j], n);
+            if (nomalized != "1") {
+                history.push_back(nomalized);
+            }
+        }
+
+    }
+    return history;
+}
+
+
 // コスト計算関数 (エネルギー)
 double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
 
@@ -95,7 +134,7 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
     }
 
     int m = 0;
-    int n = 0;
+    int n_m = 0;
     int c = 0;
 
 
@@ -104,19 +143,34 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
         m = 500;
     }
     //loop
-    cost = -2 * static_cast<double>(result.first)+ static_cast<double>(sum) * 0.3 + pow(m, 3) - pow(l, 3);
+    cost = -2 * static_cast<double>(result.first)+ static_cast<double>(sum) * 0.3 + pow(m, 2) - pow(l, 3);
     
     //メトセラ
     if (loop_counter(result.second) > 0)
     {
-        n = 10;
+        n_m = 500;
     }
     else
     {
         c = 1;
     }
 
-    cost = pow(n, 7) - c*pow(static_cast<double>(result.first), 3) + pow(static_cast<double>(sum), 2);
+    cost =n_m - result.first / static_cast<double>(sum);
+
+    std::vector<std::string> history;
+
+    history = patternChecker(result.second);
+
+    std::map<std::string, int> occurrences = countOccurrences(history);
+    std::vector<std::pair<std::string, int>> sortedOccurrences;
+    for (const auto& entry : occurrences) {
+        sortedOccurrences.push_back(entry);
+    }
+    std::sort(sortedOccurrences.begin(), sortedOccurrences.end(), sortByOccurrences);
+    const auto& firstEntry = sortedOccurrences[0];
+    const auto& secondEntry = sortedOccurrences[1];
+
+    cost = n_m - c*firstEntry.second*firstEntry.first.size()/3-c*secondEntry.second*secondEntry.first.size()/6;
 
     return cost;
 }
@@ -158,7 +212,6 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
 
     std::uniform_int_distribution<int> dist(0, 1);
     std::vector<int> input_flat = generateFlatVector(gen,n,density);
-    // 入力データの作成
     std::vector<std::vector<std::vector<int>>> currentSolution = convertTo3DVector(input_flat, n);
 
     printVector(currentSolution);
@@ -204,10 +257,25 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
 
             if (time%maxIterations==0)
             {
-                std::cout << "-----------------------------" << time <<"-----------------------------" << std::endl;
                 std::pair<int, std::vector<std::string>> best_result = generation(bestSolution, rule, filter, count);
-                std::cout << "cost" << energy(bestSolution) <<"loop"<< loop_counter(best_result.second)<< std::endl;
+                std::vector<std::string> history;
+                history = patternChecker(best_result.second);
+
+                std::map<std::string, int> occurrences = countOccurrences(history);
+                std::vector<std::pair<std::string, int>> sortedOccurrences;
+                for (const auto& entry : occurrences) {
+                    sortedOccurrences.push_back(entry);
+                }
+                std::sort(sortedOccurrences.begin(), sortedOccurrences.end(), sortByOccurrences);
+                const auto& firstEntry = sortedOccurrences[0];
+
+                double best_energy = energy(bestSolution);
+
+                std::cout << "-----------------------------time:" << time<<"||temperature:"<<temperature << "-----------------------------" << std::endl;
+
+                std::cout << "cost" <<best_energy<<"loop"<< loop_counter(best_result.second)<< std::endl;
                 std::cout << "cost" << energy(bestSolution) << "end:" << best_result.first << std::endl;
+                std::cout << "most frequency pattern" << firstEntry.first << " : " << firstEntry.second << std::endl;
                 std::cout << best_result.second.size() << std::endl;
                 //print1DVector(best_result.second);
 
@@ -219,16 +287,16 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 std::cout << estimateTime << std::endl;
                 std::cout << (((estimate_counts * maxIterations) - time) / time) * estimateTime << std::endl;
             }
-            if (time == maxIterations * 30)
+            if (time == maxIterations * 10)
             {
-                if (bestEnergy >= pow(10, 5)||generation(bestSolution,rule,filter,count).first<10)
+                if (bestEnergy >=0||generation(bestSolution,rule,filter,count).first<50)
                 {
                     std::mt19937 gen(rd());
-                    std::uniform_int_distribution<> dist_l(0, 15);
+                    std::uniform_int_distribution<> dist_l(0, 25);
                     rule[0] = dist_l(gen);
-                    std::uniform_int_distribution<> dist_b(rule[0], 16);
+                    std::uniform_int_distribution<> dist_b(rule[0], 26);
                     rule[1] = dist_b(gen);
-                    std::uniform_int_distribution<> dist_o(rule[1], 17);
+                    std::uniform_int_distribution<> dist_o(rule[1], 27);
                     rule[2] = dist_o(gen);
                     std::cout << rule[0] << "," << rule[1] << "," << rule[2] << std::endl;
                     iteration = 0;
@@ -314,106 +382,4 @@ int tes() {
     return 0;
 }
 
-
-int test()
-{
-    n=4;
-
-    std::mt19937 mt{ std::random_device{}() };
-
-    int maxValue = static_cast<int>(std::pow(2, n * n * n)) - 1;
-
-    std::cout << maxValue << std::endl;
-
-    std::uniform_int_distribution<int> dist(0, maxValue);
-
-    std::cout << dist(mt) << std::endl;
-
-    std::string S = "255";
-
-    std::cout << S << std::endl;
-
-    std::vector<int> S_l = string_to_bigint(S);
-    
-    std::reverse(S_l.begin(), S_l.end());
-    for (size_t i = 0; i < S_l.size(); i++)
-    {
-        std::cout << "size:" << S_l.at(i) << "";
-    }
-    std::cout << std::endl;
-
-    std::vector<int> input_float = decimalToBinary(S_l);
-    for (size_t i = 0; i < input_float.size(); i++)
-    {
-        std::cout << input_float.at(i) << "";
-    }
-    std::cout << std::endl;
-
-    auto it = input_float.begin();
-
-    int size_diff = std::pow(n, 3) - input_float.size();
-
-    for (size_t i = 0; i <size_diff ; i++)
-    {
-        it = input_float.insert(it, 0);
-
-    }
-
-    for (size_t i = 0; i < input_float.size(); i++)
-    {
-        std::cout << input_float.at(i) <<"";
-    }
-    std::cout<<std::endl;
-    std::cout << input_float.size() << std::endl;
-
-    int sum = accumulate(input_float.begin(), input_float.end(), 0);
-
-    std::cout << sum << std::endl;
-
-    // 入力データの作成
-    std::vector<std::vector<std::vector<int>>> input_vector = convertTo3DVector(input_float,n);
-    printVector(input_vector);
-    std::vector<int> rule = { 0, 0, 27 };
-
-    std::vector<std::vector<std::vector<int>>> filter = {
-        {{1, 1, 1}, 
-        {1, 1, 1}, 
-        {1, 1, 1}},
-
-        {{1, 1, 1}, 
-        {1, 0, 1}, 
-        {1, 1, 1}},
-
-        {{1, 1, 1}, 
-        {1, 1, 1}, 
-        {1, 1, 1}}
-    };
-
-    int count = 500;
-
-    std::chrono::system_clock::time_point start, end;
-
-    start = std::chrono::system_clock::now();
-    // ゲームの実行
-    std::pair<int, std::vector<std::string>> result = generation(input_vector, rule, filter, count);
-
-    end = std::chrono::system_clock::now();
-
-    double time = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0);
-    printf("time %lf[ms]\n", time);
-
-
-    // 結果の表示
-    std::cout << "End: " << result.first << std::endl;
-    std::cout << "Proc: ";
-    for (int i = 0; i < result.second.size(); i++)
-    {
-        std::cout << result.second[i] << std::endl;
-    }
-    std::cout << std::endl;
-
-    printVector(conv3D(input_vector, filter));
-
-    return 0;
-}
 
