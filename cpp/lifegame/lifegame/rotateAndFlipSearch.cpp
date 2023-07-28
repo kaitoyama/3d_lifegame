@@ -471,23 +471,23 @@ std::vector<std::vector<std::vector<int>>> reshapeToCube(const std::vector<std::
 }
 
 std::string normalize(const std::vector<std::vector<std::vector<int>>>& arr, int n) {
-    //std::vector<std::vector<std::vector<std::vector<int>>>> result = enumerateRotations(arr);
-    //std::vector<std::vector<std::vector<std::vector<int>>>> arrFlips = enumerateFlip(arr);
-    //result.insert(result.end(), arrFlips.begin(), arrFlips.end());
-    //std::string ans = "zzz";
+    std::vector<std::vector<std::vector<std::vector<int>>>> result = enumerateRotations(arr);
+    std::vector<std::vector<std::vector<std::vector<int>>>> arrFlips = enumerateFlip(arr);
+    result.insert(result.end(), arrFlips.begin(), arrFlips.end());
+    std::string ans = "zzz";
 
-    //for (int i = 0; i < result.size(); i++)
-    //{
-    //    std::string ans_t = binaryToDecimal(flatten(result[i]));
-    //    if (ans_t < ans) {
-    //        ans = ans_t;
-    //    }
-    //}
+    for (int i = 0; i < result.size(); i++)
+    {
+        std::string ans_t = binaryToDecimal(flatten(result[i]));
+        if (ans_t < ans) {
+            ans = ans_t;
+        }
+    }
 
-    //std::vector<int> f = decimalToBinary(ans, n * n * n);
-    //std::vector<std::vector<std::vector<int>>>h = convertTo3DVector(f, n);
+    std::vector<int> f = decimalToBinary(ans, n * n * n);
+    std::vector<std::vector<std::vector<int>>>h = convertTo3DVector(f, n);
 
-    //std::vector<std::vector<std::vector<int>>>r = reshapeToCube(h);
+    std::vector<std::vector<std::vector<int>>>r = reshapeToCube(h);
     std::string ts = binaryToDecimal(flatten(arr));
 
     return ts;

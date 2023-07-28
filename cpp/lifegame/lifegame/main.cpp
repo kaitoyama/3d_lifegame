@@ -18,18 +18,19 @@
 #include <cmath>
 #include <map>
 #include <string>
+#include <omp.h>
 
 
 // –â‘è‚ÌƒTƒCƒY
-int n =6;
+int n =5;
 
 //‰Šúó‘Ô‚Ì”Z“x(1/2^density)
-int density = 2;
+int density = 1;
 
 // Ä‚«‚È‚Ü‚µ–@‚Ìƒpƒ‰ƒ[ƒ^
-const int maxIterations = 500;      // Å‘å’Tõ‰ñ”
-const float initialTemperature = 10000.0f; // ‰Šú‰·“x
-const float coolingRate = 0.97f;       // —â‹p—¦      
+const int maxIterations = 1000;      // Å‘å’Tõ‰ñ”
+const float initialTemperature = 5000.0f; // ‰Šú‰·“x
+const float coolingRate = 0.9f;       // —â‹p—¦      
 const float epsilon = 0.1f;            // ”½“]—¦iƒÃj
 
 int count = 500;
@@ -97,7 +98,11 @@ void print1DVector(const std::vector<std::string>& cube) {
 
 std::vector<std::string>patternChecker(const std::vector<std::string>result_history) {
     std::vector<std::string> history;
+    #pragma omp parallel
+    {
+    std::vector<std::string> history_private;
 
+    #pragma omp for nowait
     for (int i = 0; i < result_history.size(); i++)
     {
         std::vector<int> f = decimalToBinary(result_history[i], n * n * n);
@@ -107,10 +112,13 @@ std::vector<std::string>patternChecker(const std::vector<std::string>result_hist
             h_p[j] = removeOuterFaces(h_p[j]);
             std::string nomalized = normalize(h_p[j], n);
             if (nomalized != "1") {
-                history.push_back(nomalized);
+                history_private.push_back(nomalized);
             }
         }
 
+    }
+#pragma omp critical
+    history.insert(history.end(), history_private.begin(), history_private.end());
     }
     return history;
 }
@@ -144,9 +152,11 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
     }
     //loop
     cost = -2 * static_cast<double>(result.first)+ static_cast<double>(sum) * 0.3 + pow(m, 2) - pow(l, 3);
+
+    int loop_count = loop_counter(result.second);
     
     //ƒƒgƒZƒ‰
-    if (loop_counter(result.second) > 0)
+    if (loop_count !=2)
     {
         n_m = 500;
     }
@@ -157,20 +167,45 @@ double energy(const std::vector<std::vector<std::vector<int>>>& cube) {
 
     cost =n_m - result.first / static_cast<double>(sum);
 
-    std::vector<std::string> history;
+    //”ÉB
+    //std::vector<std::string> history;
 
-    history = patternChecker(result.second);
+    //history = patternChecker(result.second);
 
-    std::map<std::string, int> occurrences = countOccurrences(history);
-    std::vector<std::pair<std::string, int>> sortedOccurrences;
-    for (const auto& entry : occurrences) {
-        sortedOccurrences.push_back(entry);
+    //U“®
+    //std::vector<std::string> history;
+
+
+    //if (result.first > 2) {
+    //    history = patternChecker({ result.second[result.first-2],result.second[result.first-1] });
+    //}
+    //else {
+    //    history = patternChecker(result.second);
+    //}
+
+    //std::map<std::string, int> occurrences = countOccurrences(history);
+    //std::vector<std::pair<std::string, int>> sortedOccurrences;
+    //for (const auto& entry : occurrences) {
+    //    sortedOccurrences.push_back(entry);
+    //}
+    //std::sort(sortedOccurrences.begin(), sortedOccurrences.end(), sortByOccurrences);
+    //const auto& firstEntry = sortedOccurrences[0];
+
+    if (loop_count==3) {
+
+        if (patternChecker({ result.second[result.first - 3] }) == patternChecker({ result.second[result.first - 1] })) {
+            c = 1;
+        }
+        else {
+            n_m = 500;
+        }
     }
-    std::sort(sortedOccurrences.begin(), sortedOccurrences.end(), sortByOccurrences);
-    const auto& firstEntry = sortedOccurrences[0];
-    const auto& secondEntry = sortedOccurrences[1];
+    else {
+        c = 0;
+        n_m = 500;
+    }
 
-    cost = n_m - c*firstEntry.second*firstEntry.first.size()/3-c*secondEntry.second*secondEntry.first.size()/6;
+    cost = n_m - c* 10.0/static_cast<double>(sum);
 
     return cost;
 }
@@ -287,9 +322,9 @@ std::vector<std::vector<std::vector<int>>> simulatedAnnealing() {
                 std::cout << estimateTime << std::endl;
                 std::cout << (((estimate_counts * maxIterations) - time) / time) * estimateTime << std::endl;
             }
-            if (time == maxIterations * 10)
+            if (time == maxIterations * 5)
             {
-                if (bestEnergy >=0||generation(bestSolution,rule,filter,count).first<50)
+                if (bestEnergy >=0||generation(bestSolution,rule,filter,count).first<10)
                 {
                     std::mt19937 gen(rd());
                     std::uniform_int_distribution<> dist_l(0, 25);
